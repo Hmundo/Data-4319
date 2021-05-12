@@ -1,0 +1,76 @@
+---
+title: "Machine Learning - Linear Regression"
+author: "Humberto mundo"
+date: "March 23, 2021"
+output: pdf_document
+---
+Download minimal and simple packages to build a Linear model from scratch.
+```{r}
+library(caTools)
+library(ggplot2)
+```
+
+Recently I started to run around my neighborhood lake. I have no goal other than to have an excuse to wake up early and build up my stamina. The lake is around 2 miles long, here are the details.
+
+- I run every Monday and Friday at 9:30 AM
+- I run on an empty stomach
+- I drink a Bang energy drink before every run
+- I listen to the same rotation of rap music while I run
+- I time myself on my Iphone's stopwatch
+
+There should be little to no outside factors that increase or decrease my run times, everything leading up to my runs is consistant. The only thing that could possibly have an affect would be my sleep before my running day, but my energy drink should handle that.
+
+I will create a Linear Regression model using my personal 2 mile run time data from 12 runs.
+```{r}
+day = c(1,2,3,4,5,6,7,8,9,10,11,12)
+run_time = c(12.04, 11.39, 11.37, 11.27, 11.16, 10.58, 11.09, 11.12, 10.44, 11.08, 10.39, 10.36)
+runs = data.frame(day,run_time)
+runs
+```
+
+Let's take a look at the points on a plot.
+```{r}
+ggplot() + geom_point(aes(x=day, y=run_time), col = 'black') +
+  xlim(0, 12.5) +
+  ylim(10, 12.5) + xlab('Day') + ylab('Run Time')
+```
+
+You'd expect a more polynomial looking graph, but not everyday was an improvement.
+
+Now it is time to split the data.
+```{r}
+set.seed(123)
+split = sample.split(runs$run_time, SplitRatio = 2/3)
+training_set = subset(runs, split == TRUE)
+test_set = subset(runs, split == FALSE)
+```
+
+Now we need to create our regressor.
+```{r}
+reg = lm(formula = run_time~day, data = runs)
+summary(reg)
+```
+We find a highly statistical significance between our days and run time. We can proceed with our model.
+
+Using our regressor and our test set,  we will predict new results.
+```{r}
+ypredict = predict(reg,newdata = test_set)
+ypredict
+runs
+```
+The prediction is a success, the predictors results are almost identical to our original run times.
+Let's now plot our models predictions.
+```{r}
+ggplot() + geom_point(aes(x=training_set$day, y=training_set$run_time), col = 'black') +
+  geom_line(aes(x=training_set$day, y=predict(reg,newdata = training_set)), col='red') +
+  xlim(0, 12.5) +
+  ylim(10, 12.5) + xlab('Day') + ylab('Run Time') +
+  ggtitle('Runs(Training set)')
+```
+I am really satisfied with the results.
+In the future I will continue to add more points to this model and keep training the data.
+
+
+References:
+(My online udemy online course was a big help in buidling this ML model)
+https://www.udemy.com/share/101WciBkcbcV9VTHg=/
